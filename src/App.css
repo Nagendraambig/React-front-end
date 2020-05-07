@@ -79,3 +79,7 @@ address{
   margin: 0px;
   display: inline;
 }
+
+.text {
+  text-align: left;
+}

@@ -6,7 +6,7 @@ import {Link } from 'react-router-dom'
         return(
             <Card>
                     <Link to={`/menu/${dish.id}`}>
-                        <CardImg width="100%" object src={dish.image} alt="{dish.name"/>
+                        <CardImg width="100%" object src={dish.image} alt="{dish.name}"/>
                         <CardImgOverlay>
                             <CardTitle heading><h5>{dish.name}</h5></CardTitle>
                         </CardImgOverlay>

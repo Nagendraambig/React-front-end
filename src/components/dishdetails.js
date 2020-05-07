@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Card, CardImg, CardText,CardBody, CardTitle } from 'reactstrap';
+import { Card, CardImg, CardText,CardBody, CardTitle, Button } from 'reactstrap';
 
 class DishDetails extends Component {
     constructor(props) {
@@ -32,17 +32,20 @@ class DishDetails extends Component {
             return (
                 <div className="col-12 col-md-5 m-2">
                     <Card>
-                    <h4>Comments</h4>
-                    <ul className="list-unstyled">
-                        {comments.map((com) => {
-                            return (
-                                <li key={com.id}>
-                                    <p>{com.comment}</p>
-                                    <p>--{com.author}, {this.formatDate(com.date)}</p>
-                                </li>
-                            )
-                        })}
-                    </ul>
+                        <h4>Comments</h4>
+                        <ul className="list-unstyled">
+                            {comments.map((com) => {
+                                return (
+                                    <li key={com.id}>
+                                        <p>{com.comment}</p>
+                                        <p>--{com.author}, {this.formatDate(com.date)}</p>
+                                    </li>
+                                )
+                            })}
+                        </ul>
+                        <Button outline onClick={this.toggleModal}>
+                            <span className="fa fa-edit fa-lg"></span> SubmitComment
+                        </Button>
                     </Card>
                 </div>
             )
