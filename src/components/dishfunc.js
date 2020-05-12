@@ -3,6 +3,9 @@ import { Card, CardImg, CardText,CardBody, CardTitle, Breadcrumb, BreadcrumbItem
     Modal, ModalHeader, ModalBody, Col, Row, Label } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { LocalForm, Control, Errors } from 'react-redux-form';
+import { Loading } from './loading';
+import { baseUrl } from '../shared/baseUrl';
+import { FadeTransform, Fade, Stagger } from 'react-animation-components';
 
 const required = (val) => val && val.length;
 const maxLength = (len) =>(val) => !(val) || (val.length <= len);
@@ -24,8 +27,8 @@ class CommentForm extends Component {
         })
     }
     handleSubmit(values) {
-        console.log("Current state is : " + JSON.stringify(values));
-        alert("Current state is : " + JSON.stringify(values));
+        this.toggleModal();
+        this.props.postComment(this.props.dishId, values.rating, values.author, values.comment);
     }
 
     render () {
@@ -51,13 +54,13 @@ class CommentForm extends Component {
                             </Row>
                             <Row>
                                 <Label htmlFor="firstname">Your Name</Label>
-                                    <Control.text model=".yourname" id="yourname" name="yourname"
+                                    <Control.text model=".author" id="yourname" name="yourname"
                                      className="form-control" placeholder="Your Name" 
                                      validators = {{
                                          required, minLength: minLength(3), maxLength: maxLength(15)
                                      }} />
                                     <Errors className="text-danger"
-                                        model=".yourname" show="touched"
+                                        model=".author" show="touched"
                                         messages = {{
                                             required: 'Required',
                                             minLength: 'Must be greater than 2 characters',
@@ -67,7 +70,7 @@ class CommentForm extends Component {
                             </Row>
                             <Row className="form-group">
                                 <Label htmlFor="message">Comment</Label>
-                                    <Control.textarea model=".textarea" id="message" name="message" rows="6" 
+                                    <Control.textarea model=".comment" id="message" name="message" rows="6" 
                                     className="form-control" />
                             </Row>
                             <Row className="form-group">
@@ -88,34 +91,44 @@ class CommentForm extends Component {
         function RenderDish({dish}) {
                 return (
                     <div className="col-12 col-md-5 m-2">
-                    <Card>
-                        <CardImg width="100%" object src={dish.image} alt="{this.props.dish.name}"/>
-                        <CardBody>
-                            <CardTitle><h4>{dish.name}</h4></CardTitle>
-                            <CardText>{dish.description}</CardText>
-                        </CardBody>
-                    </Card>
+                        <FadeTransform
+                            in
+                            transformProps={{
+                                exitTransform: 'scale(0.5) translateY(-50%)'
+                            }}>
+                            <Card>
+                                <CardImg width="100%" object src={ baseUrl + dish.image} alt="{this.props.dish.name}"/>
+                                <CardBody>
+                                    <CardTitle><h4>{dish.name}</h4></CardTitle>
+                                    <CardText>{dish.description}</CardText>
+                                </CardBody>
+                            </Card>
+                        </FadeTransform>    
                     </div>
                 );
         }
-        function RenderCmts({comments}){
+        function RenderCmts({comments, postComment, dishId}){
             if(comments != null) {
                 console.log(comments);
             return (
                 <div className="col-12 col-md-5 m-2">
                     {/* <Card> */}
                     <h4>Comments</h4>
-                        <ul className="list-unstyled">
+                        <ul className="list-unstyled d-table">
+                        <Stagger in>
                             {comments.map((com) => {
                                 return (
-                                    <li key={com.id} >
-                                        <p>{com.comment}</p>
-                                        <p>--{com.author}, {new Intl.DateTimeFormat('en-us', {year:'numeric', month:'short',day:'2-digit'}).format(new Date(Date.parse(com.date)))}</p>
-                                    </li>
+                                    <Fade in>
+                                        <li key={com.id} >
+                                            <p>{com.comment}</p>
+                                            <p>--{com.author}, {new Intl.DateTimeFormat('en-us', {year:'numeric', month:'short',day:'2-digit'}).format(new Date(Date.parse(com.date)))}</p>
+                                        </li>
+                                    </Fade>
                                 );
                             })}
+                            </Stagger>
                         </ul>
-                        <CommentForm />
+                        <CommentForm dishId={dishId} postComment={postComment} />
                     {/* </Card> */}
                 </div>
             );
@@ -125,7 +138,25 @@ class CommentForm extends Component {
                 )
         }
         const DishDetails = (props) => {
-            if(props.dish != null)
+            if(props.Loading) {
+                return (
+                    <div className="container">
+                        <div className="row">
+                            <Loading />
+                        </div>
+                    </div>
+                )
+            }
+            else if(props.errMess) {
+                return (
+                    <div className="container">
+                        <div className="row">
+                            <h4>{props.errMess}</h4>
+                        </div>
+                    </div>
+                )
+            }
+            else if(props.dish != null)
             {
                 return (
                     <div className="container">
@@ -142,7 +173,8 @@ class CommentForm extends Component {
                         </div>
                         <div className="row">
                             <RenderDish dish = {props.dish} />
-                            <RenderCmts comments = {props.comments} />
+                            <RenderCmts comments = {props.comments}
+                                postComment = {props.postComment} dishId={props.dish.id} />
                         </div>
                     </div>
                 )
