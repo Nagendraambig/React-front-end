@@ -26,7 +26,22 @@ function About(props) {
           </Fade>
         )
     });
+    function RenderLeaders({isLoading, errMess}){
+        if(isLoading)
+            return <Loading />
+        else if(errMess)
+            return <h4>{errMess}</h4>
+        else {
+            return (
+                <Media list>
+                    <Stagger in>
+                        {leaders}
+                    </Stagger>
+            </Media>
+            )
+        }
 
+    }
     return(
         <div className="container">
             <div className="row">
@@ -82,11 +97,8 @@ function About(props) {
                     <h2>Corporate Leadership</h2>
                 </div>
                 <div className="col-12">
-                    <Media list>
-                        <Stagger in>
-                            {leaders}
-                        </Stagger>
-                    </Media>
+                    <RenderLeaders 
+                        isLoading={props.Loading} errMess={props.errMess} />
                 </div>
             </div>
         </div>
